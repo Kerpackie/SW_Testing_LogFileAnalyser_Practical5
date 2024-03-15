@@ -13,6 +13,6 @@ public class StubCalendarProvider implements ICalendarProvider
 
     @Override
     public int getDayOfWeek() {
-        return 0;
+        return dayOfWeek;
     }
 }
