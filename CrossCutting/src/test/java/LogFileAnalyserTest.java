@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,30 +15,34 @@ public class LogFileAnalyserTest {
 
     @Test
     public void AnalyseLogFile_ValidNormalLog_ReturnsTrue() {
-        // Arrange
         System.out.println("AnalyseLogFile_ValidNormalLog_ReturnsTrue");
 
-        String fileName = "LogFile.log"; // Change file name
+        // Arrange
         StubExtensionMgr stubExtensionMgr = new StubExtensionMgr();
         stubExtensionMgr.setLogFileStatus("Normal Log");
 
-        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr);
+        StubCalendarProvider stubCalendarProvider = new StubCalendarProvider();
+
+        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr, stubCalendarProvider);
         Boolean expResult = true;
         // Act
-        Boolean result = instance.AnalyseLogFile(fileName);
+        Boolean result = instance.AnalyseLogFile("LogFile.log");
         // Assert
         assertEquals(expResult, result);
     }
+
 
     @Test
     public void AnalyseLogFile_ValidCrashLog_ReturnsFalse() throws IOException {
         // Arrange
         System.out.println("AnalyseLogFile_ValidCrashLog_ReturnsFalse");
 
+        StubCalendarProvider stubCalendarProvider = new StubCalendarProvider();
+
         String fileName = "CrashLogFile.log"; // Change file name
         StubExtensionMgr stubExtensionMgr = new StubExtensionMgr();
         stubExtensionMgr.setLogFileStatus("Monitored system crashed");
-        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr);
+        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr, null);
         Boolean expResult = false;
         createLogFileWithContent(fileName, "Exception");
         // Act
@@ -52,7 +57,7 @@ public class LogFileAnalyserTest {
         System.out.println("AnalyseLogFile_InvalidExtension_ReturnsFalse");
         String fileName = "InvalidExtensionLogFile.txt"; // Change file name
         StubExtensionMgr stubExtensionMgr = new StubExtensionMgr();
-        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr);
+        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr, null);
         Boolean expResult = false;
         // Act
         Boolean result = instance.AnalyseLogFile(fileName);
@@ -69,7 +74,7 @@ public class LogFileAnalyserTest {
 
         StubExtensionMgr stubExtensionMgr = new StubExtensionMgr();
         stubExtensionMgr.setLogFileStatus("Exception Log");
-        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr);
+        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr, null);
         Boolean expResult = true;
 
         createLogFileWithContent(fileName, "This is a log file without any exception.");
@@ -77,6 +82,23 @@ public class LogFileAnalyserTest {
         // Act
         Boolean result = instance.AnalyseLogFile(fileName);
 
+        // Assert
+        assertEquals(expResult, result);
+    }
+
+    @Test
+    public void AnalyseLogFile_ValidCrashLogOnWeekend_ReturnsTrue() throws IOException {
+        // Arrange
+        StubExtensionMgr stubExtensionMgr = new StubExtensionMgr();
+        stubExtensionMgr.setLogFileStatus("Monitored system crashed");
+
+        StubCalendarProvider stubCalendarProvider = new StubCalendarProvider();
+        stubCalendarProvider.setDayOfWeek(Calendar.SATURDAY);
+
+        LogFileAnalyserWithFileExtensionMgrAndInterface instance = new LogFileAnalyserWithFileExtensionMgrAndInterface(stubExtensionMgr, stubCalendarProvider);
+        Boolean expResult = true;
+        // Act
+        Boolean result = instance.AnalyseLogFile("CrashLogFile.log");
         // Assert
         assertEquals(expResult, result);
     }

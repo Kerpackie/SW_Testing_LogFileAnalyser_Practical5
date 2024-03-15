@@ -11,10 +11,12 @@ public class LogFileAnalyserWithFileExtensionMgrAndInterface
 
     private Boolean lastLogFileStatus=null;
     public IExtensionMgr _extensionMgr;
+    public ICalendarProvider _calendarProvider;
 
-    public LogFileAnalyserWithFileExtensionMgrAndInterface(IExtensionMgr extensionMgr)
+    public LogFileAnalyserWithFileExtensionMgrAndInterface(IExtensionMgr extensionMgr, ICalendarProvider calendarProvider)
     {
         _extensionMgr = extensionMgr;
+        _calendarProvider = calendarProvider;
     }
 
     public Boolean AnalyseLogFile(String fileName)
@@ -39,8 +41,8 @@ public class LogFileAnalyserWithFileExtensionMgrAndInterface
 
         } else if(status=="Monitored system crashed") // This is business logic which is to be tested by unit tests
         {
-            Calendar cal = Calendar.getInstance();
-            if (cal.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY)
+            int dayOfWeek = _calendarProvider.getDayOfWeek();
+            if (dayOfWeek==Calendar.SATURDAY || dayOfWeek==Calendar.SUNDAY)
             {
                 lastLogFileStatus=true;
                 return true;
