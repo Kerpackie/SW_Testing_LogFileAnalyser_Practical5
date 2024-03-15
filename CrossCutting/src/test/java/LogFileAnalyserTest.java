@@ -37,8 +37,6 @@ public class LogFileAnalyserTest {
         // Arrange
         System.out.println("AnalyseLogFile_ValidCrashLog_ReturnsFalse");
 
-        StubCalendarProvider stubCalendarProvider = new StubCalendarProvider();
-
         String fileName = "CrashLogFile.log"; // Change file name
         StubExtensionMgr stubExtensionMgr = new StubExtensionMgr();
         stubExtensionMgr.setLogFileStatus("Monitored system crashed");
